@@ -61,18 +61,32 @@ class SIS:
                         if r < self.beta:
                             self.toInfect.append(v)
 
-            #2.2 Update state of newly infected nodes
-            for v in self.toInfect:
-                self.infected.append(v)
-                self.susceptible.remove(v)
-            self.toInfect = []
-
-            #2.3 Cure infected nodes with gamma prob.
-            for u in self.infected:
-                r = random.random()
-                if r < self.gamma:
-                    self.infected.remove(u)
-                    self.susceptible.append(u)
+            r = random.randint(0, 2)
+            #Order of curing and infection events change by roughly %50 percent as said in the paper
+            if r == 0:
+                #2.2 Update state of newly infected nodes
+                for v in self.toInfect:
+                    self.infected.append(v)
+                    self.susceptible.remove(v)
+                self.toInfect = []
+                #2.3 Cure infected nodes with gamma prob.
+                for u in self.infected:
+                    r = random.random()
+                    if r < self.gamma:
+                        self.infected.remove(u)
+                        self.susceptible.append(u)
+            elif r == 1:
+                #2.3 Cure infected nodes with gamma prob.
+                for u in self.infected:
+                    r = random.random()
+                    if r < self.gamma:
+                        self.infected.remove(u)
+                        self.susceptible.append(u)
+                #2.2 Update state of newly infected nodes
+                for v in self.toInfect:
+                    self.infected.append(v)
+                    self.susceptible.remove(v)
+                self.toInfect = []
 
             #2.4 Record # of susceptible and infected in log for this timestep
             nInfected = len(self.infected)
@@ -89,7 +103,6 @@ class SIS:
 
     def saveResults(self, filename):
         """ Saves result of simulation """
-        #1. # of infected, # of susceptible and timestep
         file = open(filename,'w')
         file.write("# Beta: " + str(self.beta) + " Gamma: " + str(self.gamma) +"\n")
         file.write("# Timestep," + "N(S)," + "N(I)" + "\n")
