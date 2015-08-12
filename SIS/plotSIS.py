@@ -6,29 +6,23 @@ import glob
 #1. Read simulation logs from folder
 path = sys.argv[1]
 nFile = 0
-logs = []
-for filename in glob.glob(os.path.join(path, '*.txt')):
-    log = []
-    reader = csv.reader(open(filename, 'r'))
-    for row in reader:
-        log.append(row)
-    logs.append(log)
-    nFile += 1
+log = []
+f = open(path, 'rb')
+reader = csv.reader(f)
+for row in reader:
+    log.append(row)
 
 #2. Get timesteps, # of infected, # of susceptibles
 time = []
-avgNSusceptible = []
-avgNInfected = []
-for log in logs:
-    for i in range(0, nFile):
-        time.append(int(item[0]))
-        nSusceptible.append(int(item[1]))
-        nInfected.append(int(item[2]))
-        tSim += 1
-
+nSusceptible = []
+nInfected = []
+for item in log[2:]:
+    time.append(int(item[0]))
+    nSusceptible.append(int(item[1]))
+    nInfected.append(int(item[2]))
 
 #3. Plot data
-plt.plot(time, avgNInfected)
+plt.plot(time, nInfected)
 plt.ylim((0, 700))
 plt.ylabel('Number of infected nodes')
 plt.title(log[0])
