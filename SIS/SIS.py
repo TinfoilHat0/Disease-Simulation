@@ -1,4 +1,5 @@
 from _NetworKit import Graph
+import matplotlib.pyplot as plt
 import random
 
 class SIS:
@@ -30,6 +31,7 @@ class SIS:
         self.susceptible = []
         self.infected = []
         self.toInfect = []
+        self.log = []
         #1. Set state of all nodes to susceptible
         for n in range(0, self.size):
             self.susceptible.append(n)
@@ -42,8 +44,8 @@ class SIS:
                 self.infected.append(r)
                 count += 1
 
-    def run(self):
-        """ Runs a SIS simulation with on given network and with supplied parameters and returns the sim. log """
+    def run(self, filename):
+        """ Runs a SIS simulation on given network and with supplied parameters and returns the sim. log """
         #1. Set initial conditions for the network
         self.setup()
         nInfected = len(self.infected)
@@ -56,18 +58,19 @@ class SIS:
                 for v in self.G.neighbors(u):
                     if v in self.susceptible and v not in self.toInfect:
                         r = random.random()
-                        if r <= self.beta:
+                        if r < self.beta:
                             self.toInfect.append(v)
+
             #2.2 Update state of newly infected nodes
             for v in self.toInfect:
                 self.infected.append(v)
                 self.susceptible.remove(v)
-            self.toInfect.clear()
+            self.toInfect = []
 
             #2.3 Cure infected nodes with gamma prob.
             for u in self.infected:
                 r = random.random()
-                if r <= self.gamma:
+                if r < self.gamma:
                     self.infected.remove(u)
                     self.susceptible.append(u)
 
@@ -81,7 +84,14 @@ class SIS:
             if progress >= 10 and progress % 10 == 0:
                 print('Progress: ' + str(progress))
 
+        self.saveResults(filename)
         return self.log
 
-    def saveResults(self, path):
-        """ Saves result of simulation to a file """
+    def saveResults(self, filename):
+        """ Saves result of simulation """
+        #1. # of infected, # of susceptible and timestep
+        file = open(filename,'w')
+        file.write("# Beta: " + str(self.beta) + " Gamma: " + str(self.gamma) +"\n")
+        file.write("# Timestep," + "N(S)," + "N(I)" + "\n")
+        for item in self.log:
+            file.write(str(item[0]) + "," + str(item[1]) + "," + str(item[2]) + "\n")
